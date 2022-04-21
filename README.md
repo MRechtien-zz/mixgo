@@ -2,4 +2,29 @@
 
 This is a simple (wip) project to handle MIDI CC messages to control an Allen & Heath QU 24 audio mixer.
 
-Main goal is to control the mute groups and tap delay.
+Main goal is to control the mute groups and tap delay from a Raspberry PI via MIDI foot controller.
+
+### Raspberry Pi setup
+
+#### Install PortMidi
+
+```bash
+sudo apt install libportmidi-dev libportmidi0
+```
+
+#### Install (recent) GO runtime
+
+```bash
+export GOLANG="$(curl -s https://go.dev/dl/ | awk -F[\>\<] '/linux-armv6l/ && !/beta/ {print $5;exit}')"
+wget https://golang.org/dl/$GOLANG
+sudo tar -C /usr/local -xzf $GOLANG
+rm $GOLANG
+unset GOLANG
+```
+
+Update .profile/.bashrc
+
+```bash
+PATH=$PATH:/usr/local/go/bin
+GOPATH=$HOME/golang
+```
