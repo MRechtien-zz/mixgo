@@ -26,7 +26,7 @@ Update .profile/.bashrc
 
 ```bash
 PATH=$PATH:/usr/local/go/bin
-GOPATH=$HOME/golang
+GOPATH=$HOME/go
 ```
 
 
