@@ -26,5 +26,10 @@ Update .profile/.bashrc
 
 ```bash
 PATH=$PATH:/usr/local/go/bin
-GOPATH=$HOME/golang
+GOPATH=$HOME/go
 ```
+
+
+### Hints
+
+- On Mac OS X building the gomidi (V2) modules might fail due to `ld: library not found for -lporttime`. See https://gitlab.com/gomidi/midi/-/issues/33
