@@ -3,17 +3,20 @@ package qu
 import (
 	"fmt"
 	"net"
+
+	"github.com/mrechtien/mixgo/base"
 )
 
-type Mixer struct {
-	Output chan []byte
+type QuMixer struct {
+	base.Mixer
+	output chan []byte
 }
 
-func NewMixer() Mixer {
-	mixer := Mixer{
-		Output: make(chan []byte),
+func NewMixer() QuMixer {
+	mixer := QuMixer{
+		output: make(chan []byte),
 	}
-	go sendToMixer(mixer.Output)
+	go sendToMixer(mixer.output)
 	return mixer
 }
 
@@ -27,4 +30,12 @@ func sendToMixer(output chan []byte) {
 		conn.Write(message)
 	}
 	defer conn.Close()
+}
+
+func (mixer *QuMixer) NewMuteGroup(muteGroup string) *QuMuteGroup {
+	return NewMuteGroup(0x00, muteGroup, mixer.output)
+}
+
+func (mixer *QuMixer) NewTapDelay(fxChannel string) *QuTapDelay {
+	return NewTapDelay(0x00, fxChannel, mixer.output)
 }

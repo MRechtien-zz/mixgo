@@ -3,14 +3,11 @@ package qu
 import (
 	"math"
 	"time"
+
+	"github.com/mrechtien/mixgo/base"
 )
 
 const (
-	FX_SEND_1 = 0x00
-	FX_SEND_2 = 0x01
-	FX_SEND_3 = 0x02
-	FX_SEND_4 = 0x03
-
 	MIN_DELAY_MILLIS = 5
 	MAX_DELAY_MILLIS = 1360
 
@@ -22,7 +19,15 @@ const (
 	PLACE_VF     = 11
 )
 
-type TapDelay struct {
+var tapDelayMapping = map[string]byte{
+	"FX_SEND_1": 0x00,
+	"FX_SEND_2": 0x01,
+	"FX_SEND_3": 0x02,
+	"FX_SEND_4": 0x03,
+}
+
+type QuTapDelay struct {
+	base.TapDelay
 	lastTriggered int64
 	tapping       []int64
 	midiChannel   byte
@@ -31,15 +36,15 @@ type TapDelay struct {
 }
 
 // channel is the mixer channel (FX) to trigger the tap delay on
-func NewTapDelay(midiChannel byte, fxChannel byte, output chan []byte) TapDelay {
-	tapDelay := TapDelay{
+func NewTapDelay(midiChannel byte, fxChannel string, output chan []byte) *QuTapDelay {
+	tapDelay := QuTapDelay{
 		lastTriggered: 0,
 		tapping:       []int64{},
 		midiChannel:   midiChannel,
-		fxChannel:     fxChannel,
+		fxChannel:     tapDelayMapping[fxChannel],
 		output:        output,
 	}
-	return tapDelay
+	return &tapDelay
 }
 
 /**
@@ -47,7 +52,7 @@ func NewTapDelay(midiChannel byte, fxChannel byte, output chan []byte) TapDelay 
  * @param channel Input number 1 - 48 (e.g. Ip1)
  * @param value ValueLevel Class with Level from -inf db to +10db
  */
-func (tapDelay *TapDelay) Trigger() {
+func (tapDelay *QuTapDelay) Trigger() {
 	tempo := tryComputeTapTempo(tapDelay)
 	if tempo > 0 {
 		course, fine := computeDelayValues(tempo)
@@ -56,7 +61,7 @@ func (tapDelay *TapDelay) Trigger() {
 	}
 }
 
-func tryComputeTapTempo(tapDelay *TapDelay) int {
+func tryComputeTapTempo(tapDelay *QuTapDelay) int {
 	now := time.Now().UnixMilli()
 	if tapDelay.lastTriggered > 0 && tapDelay.lastTriggered < now-MAX_DELAY_MILLIS {
 		// reset if last trigger is longer than MAX_DELAY_TIME ago
@@ -79,7 +84,7 @@ func tryComputeTapTempo(tapDelay *TapDelay) int {
 	return 0
 }
 
-func generateDelayMessage(tapDelay *TapDelay, channel byte, coarseValue byte, fineValue byte) []byte {
+func generateDelayMessage(tapDelay *QuTapDelay, channel byte, coarseValue byte, fineValue byte) []byte {
 	// Fine and course value resolution time value = 00 to 7F
 	// Last byte - left tap: 0x05, right tap: 0x07
 	fineData := toSendValue(channel, 0x49, fineValue, 0x05)

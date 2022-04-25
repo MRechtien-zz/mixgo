@@ -1,3 +1,5 @@
+github.com/hypebeast/go-osc v0.0.0-20220308234300-cec5a8a1e5f5 h1:fqwINudmUrvGCuw+e3tedZ2UJ0hklSw6t8UPomctKyQ=
+github.com/hypebeast/go-osc v0.0.0-20220308234300-cec5a8a1e5f5/go.mod h1:lqMjoCs0y0GoRRujSPZRBaGb4c5ER6TfkFKSClxkMbY=
 github.com/rakyll/portmidi v0.0.0-20201020180702-d436ceaa537a h1:+qeh9b4LlO8AYVvm+TG4OXDRwBynTLk82t0HDBBBOQ8=
 github.com/rakyll/portmidi v0.0.0-20201020180702-d436ceaa537a/go.mod h1:xKffaBd7e1YUoLpR2azvJqkxEdUDNGNDMlsUNdv6Bcs=
 gitlab.com/gomidi/midi/v2 v2.0.0-alpha.15/go.mod h1:quTyMKSQ4Klevxu6gY4gy2USbeZra0fV5SalndmPfsY=

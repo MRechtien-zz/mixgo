@@ -1,31 +1,39 @@
 package qu
 
+import "github.com/mrechtien/mixgo/base"
+
 const (
 	MUTE_ON  = 0x40
 	MUTE_OFF = 0x10
-
-	MUTE_GROUP_1 = 0x50
-	MUTE_GROUP_2 = 0x51
-	MUTE_GROUP_3 = 0x52
-	MUTE_GROUP_4 = 0x53
 )
 
-type MuteGroup struct {
+var muteGroupMapping = map[string]byte{
+	"MUTE_ON":  0x40,
+	"MUTE_OFF": 0x10,
+
+	"MUTE_GROUP_1": 0x50,
+	"MUTE_GROUP_2": 0x51,
+	"MUTE_GROUP_3": 0x52,
+	"MUTE_GROUP_4": 0x53,
+}
+
+type QuMuteGroup struct {
+	base.MuteGroup
 	midiChannel byte
 	muteChannel byte
 	output      chan []byte
 }
 
-func NewMuteGroup(midiChannel byte, muteChannel byte, output chan []byte) MuteGroup {
-	muteGroup := MuteGroup{
+func NewMuteGroup(midiChannel byte, muteChannel string, output chan []byte) *QuMuteGroup {
+	muteGroup := QuMuteGroup{
 		midiChannel: midiChannel,
-		muteChannel: muteChannel,
+		muteChannel: muteGroupMapping[muteChannel],
 		output:      output,
 	}
-	return muteGroup
+	return &muteGroup
 }
 
-func (muteGroup *MuteGroup) Toggle(onOff bool) {
+func (muteGroup *QuMuteGroup) Toggle(onOff bool) {
 	message := toMute(muteGroup.muteChannel, onOff)
 	muteGroup.output <- message
 }

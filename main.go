@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 
-	"github.com/mrechtien/mixgo/qu"
+	"github.com/mrechtien/mixgo/base"
+	"github.com/mrechtien/mixgo/xr"
+
 	"gitlab.com/gomidi/midi/v2"
 	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv"
 )
@@ -35,10 +37,12 @@ func main() {
 		return
 	}
 
-	mixer := qu.NewMixer()
-	muteGroup3 := qu.NewMuteGroup(0, qu.MUTE_GROUP_3, mixer.Output)
-	muteGroup4 := qu.NewMuteGroup(0, qu.MUTE_GROUP_4, mixer.Output)
-	tapDelay3 := qu.NewTapDelay(0, qu.FX_SEND_3, mixer.Output)
+	//mixer := qu.NewMixer()
+	mixer := xr.NewMixer()
+
+	muteGroup3 := mixer.NewMuteGroup(base.MUTE_GROUP_3)
+	muteGroup4 := mixer.NewMuteGroup(base.MUTE_GROUP_4)
+	tapDelay3 := mixer.NewTapDelay(base.FX_SEND_2)
 
 	stop, err := midi.ListenTo(in, func(msg midi.Message, timestampms int32) {
 		var bt []byte
