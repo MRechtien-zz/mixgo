@@ -37,9 +37,8 @@ func main() {
 		return
 	}
 
-	//mixer := qu.NewMixer()
-	mixer := xr.NewMixer()
-
+	// var baseMixer base.Mixer = mixer := qu.NewMixer()
+	var mixer base.Mixer = xr.NewMixer()
 	muteGroup3 := mixer.NewMuteGroup(base.MUTE_GROUP_3)
 	muteGroup4 := mixer.NewMuteGroup(base.MUTE_GROUP_4)
 	tapDelay3 := mixer.NewTapDelay(base.FX_SEND_2)
@@ -52,11 +51,11 @@ func main() {
 			fmt.Printf("Received MIDI %s on channel %v with value %v\n", midi.ControlChange(ch, cc, val), ch, val)
 			switch {
 			case cc == 0x02:
-				muteGroup3.Toggle(val == 127)
+				(*muteGroup3).Toggle(val == 127)
 			case cc == 0x03:
-				muteGroup4.Toggle(val == 127)
+				(*muteGroup4).Toggle(val == 127)
 			case cc == 0x04:
-				tapDelay3.Trigger()
+				(*tapDelay3).Trigger()
 			default:
 			}
 		case msg.GetSysEx(&bt):

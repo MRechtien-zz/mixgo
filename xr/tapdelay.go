@@ -2,7 +2,6 @@ package xr
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/hypebeast/go-osc/osc"
 	"github.com/mrechtien/mixgo/base"
@@ -21,20 +20,20 @@ var tapDelayMapping = map[string]string{
 }
 
 type XRTapDelay struct {
-	base.TapDelay
-	lastTriggered int64
-	tapping       []int64
-	fxChannel     string
-	output        chan osc.Message
+	base.BaseTapDelay
+	fxChannel string
+	output    chan osc.Message
 }
 
 // channel is the mixer channel (FX) to trigger the tap delay on
 func NewTapDelay(fxChannel string, output chan osc.Message) *XRTapDelay {
 	tapDelay := XRTapDelay{
-		lastTriggered: 0,
-		tapping:       []int64{},
-		fxChannel:     tapDelayMapping[fxChannel],
-		output:        output,
+		BaseTapDelay: base.BaseTapDelay{
+			LastTriggered: 0,
+			Tapping:       []int64{},
+		},
+		fxChannel: tapDelayMapping[fxChannel],
+		output:    output,
 	}
 	return &tapDelay
 }
@@ -45,7 +44,7 @@ func NewTapDelay(fxChannel string, output chan osc.Message) *XRTapDelay {
  * @param value ValueLevel Class with Level from -inf db to +10db
  */
 func (tapDelay *XRTapDelay) Trigger() {
-	tempo := tryComputeTapTempo(tapDelay)
+	tempo := base.CalculateTapTempo(&tapDelay.BaseTapDelay, MAX_DELAY_MILLIS)
 	if tempo > 0 {
 		percentage := normalizeTempo(tempo)
 		message := generateDelayMessage(tapDelay, percentage)
@@ -53,36 +52,13 @@ func (tapDelay *XRTapDelay) Trigger() {
 	}
 }
 
-func tryComputeTapTempo(tapDelay *XRTapDelay) float32 {
-	now := time.Now().UnixMilli()
-	if tapDelay.lastTriggered > 0 && tapDelay.lastTriggered < now-MAX_DELAY_MILLIS {
-		// reset if last trigger is longer than MAX_DELAY_TIME ago
-		tapDelay.lastTriggered = 0
-		tapDelay.tapping = []int64{}
-	} else if tapDelay.lastTriggered > 0 {
-		// calculate diff to last trigger
-		diff := now - tapDelay.lastTriggered
-		tapDelay.tapping = append(tapDelay.tapping, diff)
-	}
-	tapDelay.lastTriggered = now
-	// calculate average delay
-	var sum int
-	for i := 0; i < len(tapDelay.tapping); i++ {
-		sum += int(tapDelay.tapping[i])
-	}
-	if sum > 0 {
-		return float32(sum / len(tapDelay.tapping))
-	}
-	return 0
-}
-
-func normalizeTempo(tempo float32) float32 {
+func normalizeTempo(tempo int) float32 {
 	if tempo > MAX_DELAY_MILLIS {
 		return 1
 	} else if tempo < MIN_DELAY_MILLIS {
 		return MIN_DELAY_MILLIS / MAX_DELAY_MILLIS
 	}
-	return tempo / MAX_DELAY_MILLIS
+	return float32(tempo) / float32(MAX_DELAY_MILLIS)
 }
 
 func generateDelayMessage(tapDelay *XRTapDelay, tempoPercentage float32) osc.Message {

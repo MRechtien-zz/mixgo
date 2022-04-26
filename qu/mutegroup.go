@@ -1,7 +1,5 @@
 package qu
 
-import "github.com/mrechtien/mixgo/base"
-
 const (
 	MUTE_ON  = 0x40
 	MUTE_OFF = 0x10
@@ -18,7 +16,6 @@ var muteGroupMapping = map[string]byte{
 }
 
 type QuMuteGroup struct {
-	base.MuteGroup
 	midiChannel byte
 	muteChannel byte
 	output      chan []byte

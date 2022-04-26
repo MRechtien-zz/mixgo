@@ -2,7 +2,6 @@ package qu
 
 import (
 	"math"
-	"time"
 
 	"github.com/mrechtien/mixgo/base"
 )
@@ -27,22 +26,22 @@ var tapDelayMapping = map[string]byte{
 }
 
 type QuTapDelay struct {
-	base.TapDelay
-	lastTriggered int64
-	tapping       []int64
-	midiChannel   byte
-	fxChannel     byte
-	output        chan []byte
+	base.BaseTapDelay
+	midiChannel byte
+	fxChannel   byte
+	output      chan []byte
 }
 
 // channel is the mixer channel (FX) to trigger the tap delay on
 func NewTapDelay(midiChannel byte, fxChannel string, output chan []byte) *QuTapDelay {
 	tapDelay := QuTapDelay{
-		lastTriggered: 0,
-		tapping:       []int64{},
-		midiChannel:   midiChannel,
-		fxChannel:     tapDelayMapping[fxChannel],
-		output:        output,
+		BaseTapDelay: base.BaseTapDelay{
+			LastTriggered: 0,
+			Tapping:       []int64{},
+		},
+		midiChannel: midiChannel,
+		fxChannel:   tapDelayMapping[fxChannel],
+		output:      output,
 	}
 	return &tapDelay
 }
@@ -53,35 +52,12 @@ func NewTapDelay(midiChannel byte, fxChannel string, output chan []byte) *QuTapD
  * @param value ValueLevel Class with Level from -inf db to +10db
  */
 func (tapDelay *QuTapDelay) Trigger() {
-	tempo := tryComputeTapTempo(tapDelay)
+	tempo := base.CalculateTapTempo(&tapDelay.BaseTapDelay, MAX_DELAY_MILLIS)
 	if tempo > 0 {
 		course, fine := computeDelayValues(tempo)
 		message := generateDelayMessage(tapDelay, 2, course, fine)
 		tapDelay.output <- message
 	}
-}
-
-func tryComputeTapTempo(tapDelay *QuTapDelay) int {
-	now := time.Now().UnixMilli()
-	if tapDelay.lastTriggered > 0 && tapDelay.lastTriggered < now-MAX_DELAY_MILLIS {
-		// reset if last trigger is longer than MAX_DELAY_TIME ago
-		tapDelay.lastTriggered = 0
-		tapDelay.tapping = []int64{}
-	} else if tapDelay.lastTriggered > 0 {
-		// calculate diff to last trigger
-		diff := now - tapDelay.lastTriggered
-		tapDelay.tapping = append(tapDelay.tapping, diff)
-	}
-	tapDelay.lastTriggered = now
-	// calculate average delay
-	var sum int64
-	for i := 0; i < len(tapDelay.tapping); i++ {
-		sum += tapDelay.tapping[i]
-	}
-	if sum > 0 {
-		return int(sum) / len(tapDelay.tapping)
-	}
-	return 0
 }
 
 func generateDelayMessage(tapDelay *QuTapDelay, channel byte, coarseValue byte, fineValue byte) []byte {

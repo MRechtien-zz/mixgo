@@ -8,15 +8,15 @@ import (
 )
 
 type XRMixer struct {
-	base.Mixer
 	output chan osc.Message
 }
 
-func NewMixer() XRMixer {
-	mixer := XRMixer{
+func NewMixer() base.Mixer {
+	xrMixer := XRMixer{
 		output: make(chan osc.Message),
 	}
-	go sendToMixer(mixer.output)
+	go sendToMixer(xrMixer.output)
+	var mixer base.Mixer = &xrMixer
 	return mixer
 }
 
@@ -30,10 +30,12 @@ func sendToMixer(output chan osc.Message) {
 	}
 }
 
-func (mixer *XRMixer) NewMuteGroup(muteGroup string) *XRMuteGroup {
-	return NewMuteGroup(muteGroup, mixer.output)
+func (mixer *XRMixer) NewMuteGroup(muteChannel string) *base.MuteGroup {
+	var muteGroup base.MuteGroup = NewMuteGroup(muteChannel, mixer.output)
+	return &muteGroup
 }
 
-func (mixer *XRMixer) NewTapDelay(fxChannel string) *XRTapDelay {
-	return NewTapDelay(fxChannel, mixer.output)
+func (mixer *XRMixer) NewTapDelay(fxChannel string) *base.TapDelay {
+	var tapDelay base.TapDelay = NewTapDelay(fxChannel, mixer.output)
+	return &tapDelay
 }
