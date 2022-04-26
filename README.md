@@ -1,8 +1,10 @@
 ## MixGo PoC
 
-This is a simple (wip) project to handle MIDI CC messages to control an Allen & Heath QU 24 audio mixer.
+This is a simple (wip) project to handle MIDI CC messages to control (digital) audio mixing consoles.
 
 Main goal is to control the mute groups and tap delay from a Raspberry PI via MIDI foot controller.
+
+Current implementation supports `Allen & Heath QU 24` and `Behringer X Air 18`. While `Allen & Heath` supportes NRPN MIDI messages the `Behringer` requires OSC messages for which [go-osc](https://github.com/hypebeast/go-osc) is used.
 
 ### Raspberry Pi setup
 
@@ -29,7 +31,6 @@ PATH=$PATH:/usr/local/go/bin
 GOPATH=$HOME/go
 ```
 
-
 ### Hints
 
-- On Mac OS X building the gomidi (V2) modules might fail due to `ld: library not found for -lporttime`. See https://gitlab.com/gomidi/midi/-/issues/33
+-   On Mac OS X building the gomidi (V2) modules might fail due to `ld: library not found for -lporttime`. See <https://gitlab.com/gomidi/midi/-/issues/33>
