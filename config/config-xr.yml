@@ -1,0 +1,23 @@
+#
+# Configuration for Behringer X Air 18
+#
+Input:
+    Name: 'MIDIMATE II Port 1'
+    Channel: 1
+Output:
+    Name: 'xr'
+    Ip: '10.10.10.10'
+    Port: 10024
+Mappings:
+    - Name: 'MuteGroup'
+      Target: 2
+      CC: 0
+      ValueOn: 127
+    - Name: 'MuteGroup'
+      Target: 3
+      CC: 1
+      ValueOn: 127
+    - Name: 'TapDelay'
+      Target: 2
+      CC: 2
+      ValueOn: 127

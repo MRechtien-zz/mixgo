@@ -2,80 +2,74 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/mrechtien/mixgo/base"
+	"github.com/mrechtien/mixgo/config"
+	"github.com/mrechtien/mixgo/input"
+	"github.com/mrechtien/mixgo/qu"
 	"github.com/mrechtien/mixgo/xr"
 
 	"gitlab.com/gomidi/midi/v2"
 	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv"
 )
 
-func printMidiDevices() {
-	// allows you to get the ports when using "real" drivers like rtmididrv or portmididrv
-	fmt.Printf("MIDI IN Ports\n")
-	for i, port := range midi.InPorts() {
-		fmt.Printf("no: %v %q\n", i, port)
-	}
-	fmt.Printf("\n\nMIDI OUT Ports\n")
-	for i, port := range midi.OutPorts() {
-		fmt.Printf("no: %v %q\n", i, port)
-	}
-	fmt.Printf("\n\n")
+func midiToKey(ch uint8, status uint8) string {
+	return fmt.Sprintf("%02X%02X", ch, status)
 }
 
 func main() {
+
+	var cfg config.Config
+	if len(os.Args) == 2 {
+		configPath := os.Args[1]
+		cfg = config.ReadConfig(configPath)
+	}
+
+	// setup mixer
+	var mixer base.Mixer
+	switch cfg.Output.Name {
+	case qu.MIXER_NAME:
+		mixer = qu.NewMixer(cfg.Output.Ip, cfg.Output.Port)
+	case xr.MIXER_NAME:
+		mixer = xr.NewMixer(cfg.Output.Ip, cfg.Output.Port)
+	}
+
+	// create callbacks for trigger mapping
+	callbacks := map[string]interface{}{}
+	for _, mapping := range cfg.Mappings {
+		key := midiToKey(cfg.Input.Channel, mapping.CC)
+		switch mapping.Name {
+		case base.MUTE_GROUP:
+			muteGroup := mixer.NewMuteGroup(mapping.Target)
+			callbacks[key] = func(ch uint8, status uint8, val uint8) {
+				(*muteGroup).Toggle(val == mapping.ValueOn)
+			}
+		case base.TAP_DELAY:
+			tapDelay := mixer.NewTapDelay(mapping.Target)
+			callbacks[key] = func(ch uint8, status uint8, val uint8) {
+				(*tapDelay).Trigger()
+			}
+		default:
+			log.Fatalln("Invalid mapping name in config: ", mapping.Name)
+		}
+	}
+
+	// setup midi & input handling / callback
+	stop := input.SetupAndHandleMidi(&cfg, func(ch, status, val byte) {
+		key := midiToKey(ch, status)
+		callback := callbacks[key]
+		if callback == nil {
+			log.Printf("Unmapped MIDI control change: %+v\n", midi.ControlChange(ch, status, val))
+			return
+		}
+		callback.(func(ch, status, val byte))(ch, status, val)
+	})
+
+	defer stop()
 	defer midi.CloseDriver()
 
-	//if len(os.Args) == 2 && os.Args[1] == "list" {
-	go printMidiDevices()
-	//return
-	//}
-
-	in := midi.FindInPort("MIDIMATE II Port 1")
-	if in < 0 {
-		fmt.Println("can't find given MIDI input device")
-		return
-	}
-
-	// var baseMixer base.Mixer = mixer := qu.NewMixer()
-	var mixer base.Mixer = xr.NewMixer()
-	muteGroup3 := mixer.NewMuteGroup(base.MUTE_GROUP_3)
-	muteGroup4 := mixer.NewMuteGroup(base.MUTE_GROUP_4)
-	tapDelay3 := mixer.NewTapDelay(base.FX_SEND_2)
-
-	stop, err := midi.ListenTo(in, func(msg midi.Message, timestampms int32) {
-		var bt []byte
-		var ch, key, cc, val uint8
-		switch {
-		case msg.GetControlChange(&ch, &cc, &val):
-			fmt.Printf("Received MIDI %s on channel %v with value %v\n", midi.ControlChange(ch, cc, val), ch, val)
-			switch {
-			case cc == 0x02:
-				(*muteGroup3).Toggle(val == 127)
-			case cc == 0x03:
-				(*muteGroup4).Toggle(val == 127)
-			case cc == 0x04:
-				(*tapDelay3).Trigger()
-			default:
-			}
-		case msg.GetSysEx(&bt):
-			fmt.Printf("got sysex: % X\n", bt)
-		case msg.GetNoteStart(&ch, &key, &val):
-			fmt.Printf("starting note %s on channel %v with velocity %v\n", midi.Note(key), ch, val)
-		case msg.GetNoteEnd(&ch, &key):
-			fmt.Printf("ending note %s on channel %v\n", midi.Note(key), ch)
-		default:
-			// ignore
-		}
-	}, midi.UseSysEx())
-
-	if err != nil {
-		fmt.Printf("ERROR: %s\n", err)
-		return
-	}
-
 	fmt.Scanln()
-	fmt.Println("Exitting!")
-
-	stop()
+	log.Println("Exitting!")
 }

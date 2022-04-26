@@ -1,19 +1,10 @@
 package qu
 
 const (
-	MUTE_ON  = 0x40
-	MUTE_OFF = 0x10
+	MUTE_ON     = 0x40
+	MUTE_OFF    = 0x10
+	MUTE_GROUPS = 0x50 // start channel
 )
-
-var muteGroupMapping = map[string]byte{
-	"MUTE_ON":  0x40,
-	"MUTE_OFF": 0x10,
-
-	"MUTE_GROUP_1": 0x50,
-	"MUTE_GROUP_2": 0x51,
-	"MUTE_GROUP_3": 0x52,
-	"MUTE_GROUP_4": 0x53,
-}
 
 type QuMuteGroup struct {
 	midiChannel byte
@@ -21,10 +12,10 @@ type QuMuteGroup struct {
 	output      chan []byte
 }
 
-func NewMuteGroup(midiChannel byte, muteChannel string, output chan []byte) *QuMuteGroup {
+func NewMuteGroup(midiChannel byte, muteChannel byte, output chan []byte) *QuMuteGroup {
 	muteGroup := QuMuteGroup{
 		midiChannel: midiChannel,
-		muteChannel: muteGroupMapping[muteChannel],
+		muteChannel: MUTE_GROUPS + muteChannel,
 		output:      output,
 	}
 	return &muteGroup

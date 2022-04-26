@@ -12,27 +12,20 @@ const (
 	MAX_DELAY_MILLIS = 3000
 )
 
-var tapDelayMapping = map[string]string{
-	"FX_SEND_1": "1",
-	"FX_SEND_2": "2",
-	"FX_SEND_3": "3",
-	"FX_SEND_4": "4",
-}
-
 type XRTapDelay struct {
 	base.BaseTapDelay
-	fxChannel string
+	fxChannel byte
 	output    chan osc.Message
 }
 
 // channel is the mixer channel (FX) to trigger the tap delay on
-func NewTapDelay(fxChannel string, output chan osc.Message) *XRTapDelay {
+func NewTapDelay(fxChannel byte, output chan osc.Message) *XRTapDelay {
 	tapDelay := XRTapDelay{
 		BaseTapDelay: base.BaseTapDelay{
 			LastTriggered: 0,
 			Tapping:       []int64{},
 		},
-		fxChannel: tapDelayMapping[fxChannel],
+		fxChannel: fxChannel,
 		output:    output,
 	}
 	return &tapDelay
@@ -62,5 +55,5 @@ func normalizeTempo(tempo int) float32 {
 }
 
 func generateDelayMessage(tapDelay *XRTapDelay, tempoPercentage float32) osc.Message {
-	return *osc.NewMessage(fmt.Sprintf("/fx/%s/par/01", tapDelay.fxChannel), tempoPercentage)
+	return *osc.NewMessage(fmt.Sprintf("/fx/%d/par/01", tapDelay.fxChannel), tempoPercentage)
 }

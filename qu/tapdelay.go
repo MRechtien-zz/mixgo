@@ -1,6 +1,7 @@
 package qu
 
 import (
+	"log"
 	"math"
 
 	"github.com/mrechtien/mixgo/base"
@@ -18,13 +19,6 @@ const (
 	PLACE_VF     = 11
 )
 
-var tapDelayMapping = map[string]byte{
-	"FX_SEND_1": 0x00,
-	"FX_SEND_2": 0x01,
-	"FX_SEND_3": 0x02,
-	"FX_SEND_4": 0x03,
-}
-
 type QuTapDelay struct {
 	base.BaseTapDelay
 	midiChannel byte
@@ -33,14 +27,14 @@ type QuTapDelay struct {
 }
 
 // channel is the mixer channel (FX) to trigger the tap delay on
-func NewTapDelay(midiChannel byte, fxChannel string, output chan []byte) *QuTapDelay {
+func NewTapDelay(midiChannel byte, fxChannel byte, output chan []byte) *QuTapDelay {
 	tapDelay := QuTapDelay{
 		BaseTapDelay: base.BaseTapDelay{
 			LastTriggered: 0,
 			Tapping:       []int64{},
 		},
 		midiChannel: midiChannel,
-		fxChannel:   tapDelayMapping[fxChannel],
+		fxChannel:   fxChannel,
 		output:      output,
 	}
 	return &tapDelay
@@ -105,7 +99,7 @@ func toSendValue(msb byte, lsb byte, vc byte, vf byte) []byte {
 
 func setMidiChannel(channel byte, message []byte) {
 	if len(message) != 9 && len(message) != 12 {
-		panic("MIDI message length must be 9 or 12 bytes")
+		log.Fatal("MIDI message length must be 9 or 12 bytes")
 	}
 
 	message[0] = 0xB0 + channel

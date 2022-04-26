@@ -27,8 +27,8 @@ unset GOLANG
 Update .profile/.bashrc
 
 ```bash
-PATH=$PATH:/usr/local/go/bin
 GOPATH=$HOME/go
+PATH=$PATH:$GOPATH:/usr/local/go/bin
 ```
 
 ### Hints

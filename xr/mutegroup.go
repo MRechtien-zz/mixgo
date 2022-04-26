@@ -12,22 +12,15 @@ const (
 	MUTE_OFF = int32(0)
 )
 
-var muteGroupMapping = map[string]string{
-	"MUTE_GROUP_1": "0",
-	"MUTE_GROUP_2": "1",
-	"MUTE_GROUP_3": "2",
-	"MUTE_GROUP_4": "3",
-}
-
 type XRMuteGroup struct {
 	base.MuteGroup
-	muteChannel string
+	muteChannel byte
 	output      chan osc.Message
 }
 
-func NewMuteGroup(muteChannel string, output chan osc.Message) *XRMuteGroup {
+func NewMuteGroup(muteChannel byte, output chan osc.Message) *XRMuteGroup {
 	muteGroup := XRMuteGroup{
-		muteChannel: muteGroupMapping[muteChannel],
+		muteChannel: muteChannel,
 		output:      output,
 	}
 	return &muteGroup
@@ -39,6 +32,6 @@ func (muteGroup *XRMuteGroup) Toggle(onOff bool) {
 		value = MUTE_ON
 	}
 
-	message := osc.NewMessage(fmt.Sprintf("/config/mute/%s", muteGroup.muteChannel), value)
+	message := osc.NewMessage(fmt.Sprintf("/config/mute/%d", muteGroup.muteChannel), value)
 	muteGroup.output <- *message
 }

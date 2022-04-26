@@ -6,7 +6,9 @@
             "type": "go",
             "request": "launch",
             "mode": "debug",
-            "program": "${file}"
+            "program": "main.go",
+            "args": ["${workspaceFolder}/config/config-xr.yml"],
+            "cwd": "${workspaceFolder}"
         }
     ],
     "compounds": []

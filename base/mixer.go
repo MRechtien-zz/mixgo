@@ -1,6 +1,6 @@
 package base
 
 type Mixer interface {
-	NewMuteGroup(muteChannel string) *MuteGroup
-	NewTapDelay(fxChannel string) *TapDelay
+	NewMuteGroup(muteChannel byte) *MuteGroup
+	NewTapDelay(fxChannel byte) *TapDelay
 }
