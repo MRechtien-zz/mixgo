@@ -10,7 +10,7 @@ Current implementation supports `Allen & Heath QU 24` and `Behringer X Air 18`. 
 
 The hardware layout of my setup looks like:
 
-_*MIDI FootController => USB-Midi Interface => Raspberry PI => <WIFI> => Digital Mixing Console*_
+*_MIDI FootController => USB-Midi Interface => Raspberry PI => WIFI => Digital Mixing Console_*
 
 #### Install PortMidi
 
