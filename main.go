@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
+	"syscall"
 
 	"github.com/mrechtien/mixgo/base"
 	"github.com/mrechtien/mixgo/config"
@@ -67,9 +69,13 @@ func main() {
 		callback.(func(ch, status, val byte))(ch, status, val)
 	})
 
-	defer stop()
-	defer midi.CloseDriver()
+	signalChan := make(chan os.Signal, 1)
+	signal.Notify(signalChan, os.Interrupt, syscall.SIGTERM)
+	log.Println("MixGo is up and running!")
 
-	fmt.Scanln()
-	log.Println("Exitting!")
+	signal := <-signalChan
+	log.Printf("Exitting on signal: %d\n", signal)
+	stop()
+	midi.CloseDriver()
+	log.Println("Done.")
 }

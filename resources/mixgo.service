@@ -1,0 +1,21 @@
+
+###
+# User-level systemd service script/unit
+#
+# Install in ~/.config/systemd/user/mixgo.service
+# Enable with sudo loginctl enable-linger <user>
+# Mange with systemctl --user <status|start|stop|restart> mixgo.service
+##
+
+
+[Install]
+WantedBy=default.target
+
+[Unit]
+Description=Systemd autostart MixGo
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+ExecStart=bash "/opt/mixgo/config/start-mixgo.sh"
