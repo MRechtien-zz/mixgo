@@ -16,7 +16,7 @@ while ! ip -force -4 addr show wlan0 | grep -q inet; do
 done
 
 CFG='config/config-qu.yml'
-if ip addr list | grep wlan0 | grep 10.10.10.; then
+if ip addr list | grep wlan0 | grep -q 10.10.10.; then
     CFG='config/config-xr.yml'
 fi
 
