@@ -1,18 +1,23 @@
 ## MixGo PoC
 
-This is a simple (wip) project to handle MIDI CC messages to control (digital) audio mixing consoles.
+This project handles MIDI CC messages from a given MIDI interface to control (digital) audio mixing consoles.
 
 Main goal is to control the mute groups and tap delay from a Raspberry PI via MIDI foot controller.
 
-Current implementation supports `Allen & Heath QU 24` and `Behringer X Air 18`. While `Allen & Heath` supportes NRPN MIDI messages the `Behringer` requires OSC messages for which [go-osc](https://github.com/hypebeast/go-osc) is used.
+Current implementation supports `Allen & Heath QU 24` and `Behringer X Air 18`. While `Allen & Heath` uses *NRPN* MIDI messages the `Behringer` requires *OSC* messages for which [go-osc](https://github.com/hypebeast/go-osc) is used.
 
 ### Raspberry Pi setup
+
+The hardware layout of my setup looks like:
+
+_*MIDI FootController => USB-Midi Interface => Raspberry PI => <WIFI> => Digital Mixing Console*_
 
 #### Install PortMidi
 
 ```bash
 sudo apt install libportmidi-dev libportmidi0
 ```
+The RPI and portmidi should work with most class compliant USB-MIDI interfaces.
 
 #### Install (recent) GO runtime
 
@@ -30,6 +35,13 @@ Update .profile/.bashrc
 GOPATH=$HOME/go
 PATH=$PATH:$GOPATH:/usr/local/go/bin
 ```
+
+#### Setting up mixgo service
+
+`resource/mixgo.service` can be installed as (user-level) `systemd` service - see file for more instructions. This unit definition references the start-up `script/start-mixgo.sh`. The startup-script greps the current IP/network of interface "wlan0" in order to determin the matching configuration for that setup and launches the `mixgo` executable.
+
+A _wpa_supplicant_ configuration template can be found in `resources/wpa_supplicant.conf` to indicate howto setup multiple WIFI configurations.
+
 
 ### Hints
 
