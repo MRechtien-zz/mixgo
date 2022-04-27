@@ -21,3 +21,5 @@ After=network-online.target
 [Service]
 Type=simple
 ExecStart=bash "/opt/mixgo/script/start-mixgo.sh"
+Restart=always
+RestartSec=10

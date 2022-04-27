@@ -10,13 +10,15 @@ cd ${SCRIPT_DIR}/..
 WORKDIR=$(pwd)
 echo "Working directory ${WORKDIR}"
 
-CFG='/opt/mixgo/config/config-qu.yml'
+while ! ip -force -4 addr show wlan0 | grep -q inet; do
+    echo "Waiting for wlan0 to be up"
+    sleep 3
+done
 
-if [ "$(ip addr list | grep wlan0 | grep 10.10.10.)" ]
-then
-    CFG='/opt/mixgo/config/config-xr.yml'
+CFG='config/config-qu.yml'
+if ip addr list | grep wlan0 | grep 10.10.10.; then
+    CFG='config/config-xr.yml'
 fi
 
 echo "Using config: ${CFG}"
-
 ./mixgo ${CFG}
