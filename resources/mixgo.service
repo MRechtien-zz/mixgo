@@ -5,8 +5,10 @@
 # Install in ~/.config/systemd/user/mixgo.service
 # Enable with sudo loginctl enable-linger <user>
 # Mange with systemctl --user <status|start|stop|restart> mixgo.service
+# 
+# Note: if you depend on a specific device use 'sytemctl' command to list available .device units
+#       add your device to 'WantedBy' list (space-separated)
 ##
-
 
 [Install]
 WantedBy=default.target
@@ -18,4 +20,4 @@ After=network-online.target
 
 [Service]
 Type=simple
-ExecStart=bash "/opt/mixgo/config/start-mixgo.sh"
+ExecStart=bash "/opt/mixgo/script/start-mixgo.sh"
