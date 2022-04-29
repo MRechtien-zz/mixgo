@@ -18,7 +18,6 @@ type BaseTapDelay struct {
 	Tapping       []int64
 }
 
-// TODO broken
 func CalculateTapTempo(tapDelay *BaseTapDelay, maxDelayTime int) int {
 	now := time.Now().UnixMilli()
 	if len(tapDelay.Tapping) > 3 {
@@ -34,7 +33,7 @@ func CalculateTapTempo(tapDelay *BaseTapDelay, maxDelayTime int) int {
 		diff := now - tapDelay.LastTriggered
 		average := calculateAverageDelay(tapDelay.Tapping)
 		if average > 0 && math.Abs(float64(diff-average)) > float64(average/4) {
-			// tap is off more then X % from average: reset
+			// tap is off more then 25% from average: reset
 			tapDelay.Tapping = []int64{}
 		} else {
 			// prepend new time as we might truncate (above)
