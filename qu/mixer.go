@@ -13,17 +13,23 @@ const (
 	MIXER_NAME = "qu"
 )
 
+func init() {
+	base.AddMixer(MIXER_NAME, func(ip string, port uint) *base.Mixer {
+		return NewMixer(ip, port)
+	})
+}
+
 type QuMixer struct {
 	output chan []byte
 }
 
-func NewMixer(ip string, port uint) base.Mixer {
+func NewMixer(ip string, port uint) *base.Mixer {
 	quMixer := QuMixer{
 		output: make(chan []byte),
 	}
 	go sendToMixer(ip, port, quMixer.output)
 	var mixer base.Mixer = &quMixer
-	return mixer
+	return &mixer
 }
 
 func sendToMixer(ip string, port uint, output chan []byte) {

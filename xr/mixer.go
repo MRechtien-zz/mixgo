@@ -15,13 +15,19 @@ type XRMixer struct {
 	output chan osc.Message
 }
 
-func NewMixer(ip string, port uint) base.Mixer {
+func init() {
+	base.AddMixer(MIXER_NAME, func(ip string, port uint) *base.Mixer {
+		return NewMixer(ip, port)
+	})
+}
+
+func NewMixer(ip string, port uint) *base.Mixer {
 	xrMixer := XRMixer{
 		output: make(chan osc.Message),
 	}
 	go sendToMixer(ip, port, xrMixer.output)
 	var mixer base.Mixer = &xrMixer
-	return mixer
+	return &mixer
 }
 
 func sendToMixer(ip string, port uint, output chan osc.Message) {

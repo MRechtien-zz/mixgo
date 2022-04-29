@@ -24,7 +24,7 @@ func printMidiDevices() {
 
 func SetupAndHandleMidi(config *config.Config, callback func(byte, byte, byte)) func() {
 
-	go printMidiDevices()
+	printMidiDevices()
 
 	in := midi.FindInPort(config.Input.Name)
 	if in < 0 {
