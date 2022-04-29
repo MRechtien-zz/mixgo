@@ -14,7 +14,6 @@ import (
 	_ "github.com/mrechtien/mixgo/xr"
 
 	"gitlab.com/gomidi/midi/v2"
-	_ "gitlab.com/gomidi/midi/v2/drivers/portmididrv"
 )
 
 func midiToKey(ch uint8, status uint8) string {
@@ -30,7 +29,7 @@ func main() {
 	}
 
 	// setup mixer
-	mixer := base.CreateMixer(cfg.Output.Name, cfg.Output.Ip, cfg.Output.Port)
+	mixer := *base.CreateMixer(cfg.Output.Name, cfg.Output.Ip, cfg.Output.Port)
 
 	// create callbacks for trigger mapping
 	callbacks := map[string]interface{}{}
@@ -38,14 +37,14 @@ func main() {
 		key := midiToKey(cfg.Input.Channel, mapping.CC)
 		switch mapping.Name {
 		case base.MUTE_GROUP:
-			muteGroup := (*mixer).NewMuteGroup(mapping.Target)
+			muteGroup := *mixer.NewMuteGroup(mapping.Target)
 			callbacks[key] = func(ch uint8, status uint8, val uint8) {
-				(*muteGroup).Toggle(val == mapping.ValueOn)
+				muteGroup.Toggle(val == mapping.ValueOn)
 			}
 		case base.TAP_DELAY:
-			tapDelay := (*mixer).NewTapDelay(mapping.Target)
+			tapDelay := *mixer.NewTapDelay(mapping.Target)
 			callbacks[key] = func(ch uint8, status uint8, val uint8) {
-				(*tapDelay).Trigger()
+				tapDelay.Trigger()
 			}
 		default:
 			log.Fatalln("Invalid mapping name in config: ", mapping.Name)
