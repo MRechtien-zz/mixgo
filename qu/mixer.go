@@ -33,16 +33,17 @@ func NewMixer(ip string, port uint) *base.Mixer {
 }
 
 func sendToMixer(ip string, port uint, output chan []byte) {
-	dialer := net.Dialer{Timeout: (time.Second * 10)}
-	connection, err := dialer.Dial("tcp", fmt.Sprintf("%s:%d", ip, port))
-	if err != nil {
-		log.Fatalf("Could not connect to TCP server: %s", err)
-	}
 	for message := range output {
-		log.Printf("Sending message to mixer: %v\n", message)
-		connection.Write(message)
+		dialer := net.Dialer{Timeout: (time.Second * 5)}
+		connection, err := dialer.Dial("tcp", fmt.Sprintf("%s:%d", ip, port))
+		if err != nil {
+			log.Printf("Could not connect to TCP server: %s", err)
+		} else {
+			log.Printf("Sending message to mixer: %v\n", message)
+			connection.Write(message)
+		}
+		connection.Close()
 	}
-	defer connection.Close()
 }
 
 func (mixer *QuMixer) NewMuteGroup(muteChannel byte) *base.MuteGroup {
