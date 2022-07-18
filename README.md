@@ -12,7 +12,7 @@ The hardware layout of my setup looks like:
 
 *_MIDI FootController => USB-Midi Interface => Raspberry PI => WIFI => Digital Mixing Console_*
 
-#### Install PortMidi
+#### Install PortMidi (Ubuntu/Debian based)
 
 ```bash
 sudo apt install libportmidi-dev libportmidi0
