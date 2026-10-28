@@ -1,12 +1,14 @@
 #!/bin/bash
 #
-# Startup script using the current ip address/net to determine matching
-# configuration file and lauch the application
+# Startup script using the current ip address/net to determine the matching
+# configuration file and launch the application.
+#
+# Passing --config bypasses the interactive bootstrap profile selector.
 #
 ###
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-cd ${SCRIPT_DIR}/..
+cd "${SCRIPT_DIR}/.." || exit 1
 WORKDIR=$(pwd)
 echo "Working directory ${WORKDIR}"
 
@@ -21,4 +23,8 @@ if ip addr list | grep wlan0 | grep -q 10.10.10.; then
 fi
 
 echo "Using config: ${CFG}"
-./mixgo ${CFG}
+BINARY="${WORKDIR}/bin/mixgo"
+if [ ! -x "${BINARY}" ]; then
+    BINARY="${WORKDIR}/mixgo"
+fi
+exec "${BINARY}" --config "${CFG}"

@@ -8,6 +8,9 @@
 # 
 # Note: if you depend on a specific device use 'sytemctl' command to list available .device units
 #       add your device to 'WantedBy' list (space-separated)
+#
+# Build the binary with `make build` and install the repository in
+# /opt/mixgo. The start-up script expects the binary in /opt/mixgo/bin/mixgo.
 ##
 
 [Install]

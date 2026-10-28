@@ -1,0 +1,36 @@
+#
+# Configuration for Allen & Heath CQ18T controlled by GPIO foot switches.
+#
+input:
+  type: gpio
+  channel: 0
+
+display:
+  type: gpio
+
+output:
+  type: cq
+  address: 192.168.178.55:51325
+
+bindings:
+  # Tap delay on FX slot 2. GPIO buttons report a short press (value 1) and a
+  # release (value 0); tap_delay reacts to the press only.
+  - action: tap_delay
+    control: 17
+    target: 2
+    on_value: 1
+    led: 26
+
+  # Examples:
+  # - action: mute_channel
+  #   control: 17
+  #   target: 81
+  #   on_value: 1
+  #   mode: toggle
+  #   led: 26
+  #
+  # - action: mute_group
+  #   control: 5
+  #   target: 0
+  #   on_value: 1
+  #   mode: toggle

@@ -1,0 +1,37 @@
+#
+# Configuration for Allen & Heath CQ18T controlled by a MIDI foot controller.
+#
+input:
+  type: portmidi
+  device: MIDIMATE II Port 1
+  channel: 0
+
+output:
+  type: cq
+  address: 192.168.178.55:51325
+
+bindings:
+  - action: mute_channel
+    control: 0
+    target: 81
+    on_value: 1
+    mode: absolute
+  - action: mute_channel
+    control: 1
+    target: 82
+    on_value: 1
+    mode: absolute
+  - action: tap_delay
+    control: 10
+    target: 2
+    on_value: 1
+  - action: mute_group
+    control: 5
+    target: 0
+    on_value: 1
+    mode: absolute
+  - action: mute_group
+    control: 6
+    target: 1
+    on_value: 1
+    mode: absolute

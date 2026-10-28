@@ -1,0 +1,48 @@
+name: CI
+
+on:
+  push:
+    branches: [main, "feature/**"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+          cache: true
+      - name: Verify formatting
+        run: |
+          files="$(gofmt -l cmd internal)"
+          if [ -n "$files" ]; then
+            echo "gofmt needed:"
+            echo "$files"
+            exit 1
+          fi
+      - name: Build (pure Go)
+        run: go build ./...
+      - name: Vet
+        run: go vet ./...
+      - name: Test with race detector
+        run: go test -race ./...
+
+  portmidi:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24.x"
+          cache: true
+      - name: Install PortMidi
+        run: sudo apt-get update && sudo apt-get install -y libportmidi-dev
+      - name: Build with PortMidi
+        run: go build -tags portmidi ./...
+      - name: Test with PortMidi
+        run: go test -tags portmidi ./...

@@ -2,12 +2,21 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Launch MixGo",
+            "name": "Debug mixgo (GPIO/CQ)",
             "type": "go",
             "request": "launch",
             "mode": "auto",
-            "program": "${fileDirname}",
-            "args": ["${workspaceFolder}/config/config-xr-local.yml"],
+            "program": "${workspaceFolder}/cmd/mixgo",
+            "args": ["--config", "${workspaceFolder}/config/config-cq-gpio.yml"],
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Debug mixgo (bootstrap)",
+            "type": "go",
+            "request": "launch",
+            "mode": "auto",
+            "program": "${workspaceFolder}/cmd/mixgo",
+            "args": ["--bootstrap", "${workspaceFolder}/config/bootstrap.yml", "--log-level", "debug"],
             "cwd": "${workspaceFolder}"
         }
     ],
